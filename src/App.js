@@ -1,25 +1,58 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState, useEffect } from "react";
+import Item from "./Item";
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+import "./App.css";
+import ResetButton from "./ResetButton";
+import Form from "./Form";
+
+const App = () => {
+  const [obj, setObj] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const getData = async () => {
+    const url = "https://robadrinsa1.blob.core.windows.net/software/data.json";
+    try {
+      setIsLoading(true);
+      const response = await fetch(url);
+      const data = await response.json();
+      setObj(data);
+      setIsLoading(false);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  useEffect(() => {
+    getData();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="container">
+        <h1>Loading...</h1>
+      </div>
+    );
+  } else {
+    return (
+      <>
+        <div className="container">
+          {obj.map((item) => {
+            return (
+              <Item key={item.id} {...item} obj={obj} setObj={setObj}></Item>
+            );
+          })}
+          <ResetButton
+            setObj={setObj}
+            isLoading={isLoading}
+            setIsLoading={setIsLoading}
+          ></ResetButton>
+        </div>
+        <div className="container">
+          <Form obj={obj} setObj={setObj}></Form>
+        </div>
+      </>
+    );
+  }
+};
 
 export default App;
